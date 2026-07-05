@@ -2,189 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Form Filler & Generator</title>
-    
+    <title>Smart Declaration Form Filler</title>
     <style>
-        :root { --primary: #ff7619; --secondary: #0056b3; --success: #28a745; --bg: #f4f6f9; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; background: var(--bg); }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .header h1 { margin: 0; color: var(--secondary); font-size: 24px; }
-        .header p { color: #666; font-size: 14px; margin-top: 5px; }
-        
-        .controls { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn, .file-upload { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; text-align: center; }
-        .btn-upload { background: #e9ecef; color: #333; border: 1px solid #ccc; }
-        .btn-success { background: var(--success); color: white; }
-        
-        .workspace-wrapper { text-align: center; background: #eee; padding: 10px; border-radius: 8px; overflow-x: auto; }
-        #form-workspace { position: relative; display: inline-block; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        
-        #base-image { max-width: 100%; display: none; }
-        
-        /* Auto-created Text Inputs */
-        .typing-input { position: absolute; background: transparent; border: 1px dashed var(--primary); font-family: 'Arial'; font-size: 16px; font-weight: bold; color: black; outline: none; padding: 2px; z-index: 10; }
-        .typing-input:focus { border: 2px solid var(--secondary); background: rgba(255,255,255,0.8); }
-        
-        /* Signature Overlay */
-        .sig-overlay { position: absolute; max-height: 50px; cursor: move; z-index: 20; border: 1px dashed #ccc; }
-        
-        .instruction { background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 15px; font-weight: bold; display: none; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f6f9; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        #form-workspace { position: relative; display: inline-block; border: 1px solid #ccc; margin-top: 10px; }
+        #base-image { max-width: 100%; display: block; }
+        .typing-input { position: absolute; background: transparent; border: 1px dashed #ff7619; font-size: 16px; z-index: 10; }
+        .sig-overlay { position: absolute; max-width: 100px; cursor: move; z-index: 20; border: 1px dashed #ccc; }
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <a href="index.html" style="color:var(--secondary); text-decoration:none; font-weight:bold;">← Back to Dashboard</a>
-    
-    <div class="header">
-        <h1>📝 Smart Declaration Form Filler</h1>
-        <p>Click anywhere on the form to type text. Upload signature, drag it to position, and download!</p>
-    </div>
-
+    <a href="index.html">← Back to Dashboard</a>
+    <h2>Smart Declaration Form Filler</h2>
     <div class="controls">
-        <label class="file-upload btn-upload">
-            1. Upload Blank Form
-            <input type="file" id="formUpload" accept="image/*" style="display:none;">
-        </label>
-        
-        <label class="file-upload btn-upload" id="sigLabel" style="display:none;">
-            2. Add Signature Image
-            <input type="file" id="sigUpload" accept="image/*" style="display:none;">
-        </label>
-        
-        <button class="btn btn-success" id="btnDownload" style="display:none;">3. Generate & Compress (Under 100KB)</button>
+        <input type="file" id="formUpload" accept="image/*">
+        <input type="file" id="sigUpload" accept="image/*" title="Add Signature">
+        <button id="btnDownload">Generate JPG</button>
     </div>
-
-    <div class="instruction" id="instructionBox">💡 Hint: Form par jahan likhna hai wahan CLICK karein!</div>
-
-    <div class="workspace-wrapper">
-        <div id="form-workspace">
-            <img id="base-image" src="">
-        </div>
-    </div>
+    <div id="form-workspace"><img id="base-image" src=""></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <script>
-    const formUpload = document.getElementById('formUpload');
-    const sigUpload = document.getElementById('sigUpload');
-    const baseImage = document.getElementById('base-image');
     const workspace = document.getElementById('form-workspace');
-    const instructionBox = document.getElementById('instructionBox');
-    const btnDownload = document.getElementById('btnDownload');
-    const sigLabel = document.getElementById('sigLabel');
+    const baseImg = document.getElementById('base-image');
 
-    // Load Blank Form Image
-    formUpload.addEventListener('change', (e) => {
-        if(e.target.files.length > 0) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                baseImage.src = event.target.result;
-                baseImage.style.display = 'block';
-                
-                sigLabel.style.display = 'block';
-                btnDownload.style.display = 'block';
-                instructionBox.style.display = 'block';
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    });
+    document.getElementById('formUpload').onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => { baseImg.src = ev.target.result; };
+        reader.readAsDataURL(e.target.files[0]);
+    };
 
-    // Feature: Click anywhere on the image to add a text input
-    workspace.addEventListener('click', function(e) {
-        // Sirf image par click karne par input aaye, input par click karne par naya na bane
-        if (e.target !== baseImage && e.target !== workspace) return;
-
+    workspace.onclick = (e) => {
+        if (e.target !== baseImg && e.target !== workspace) return;
         const input = document.createElement('input');
-        input.type = 'text';
         input.className = 'typing-input';
-        
-        // Position it exactly where user clicked
         input.style.left = e.offsetX + 'px';
-        input.style.top = (e.offsetY - 10) + 'px'; 
-        
+        input.style.top = e.offsetY + 'px';
         workspace.appendChild(input);
         input.focus();
+    };
 
-        // Agar box khali chhoda toh automatically remove ho jaye
-        input.addEventListener('blur', () => {
-            input.style.border = 'none'; // print ke time border hide
-            if(input.value.trim() === '') {
-                input.remove();
-            }
-        });
-        
-        // Dubara click karne par border wapas dikhe
-        input.addEventListener('focus', () => {
-            input.style.border = '1px dashed #ff7619';
-        });
-    });
-
-    // Feature: Add Signature and make it draggable
-    sigUpload.addEventListener('change', (e) => {
-        if(e.target.files.length > 0) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const sigImg = document.createElement('img');
-                sigImg.src = event.target.result;
-                sigImg.className = 'sig-overlay';
-                sigImg.style.left = '50%';
-                sigImg.style.top = '80%'; // Default positioning near bottom
-                
-                // Simple Drag functionality for PC & Mobile
-                let isDragging = false;
-                sigImg.addEventListener('mousedown', () => isDragging = true);
-                document.addEventListener('mouseup', () => isDragging = false);
-                document.addEventListener('mousemove', (ev) => {
-                    if(isDragging) {
-                        const rect = workspace.getBoundingClientRect();
-                        sigImg.style.left = (ev.clientX - rect.left - 25) + 'px';
-                        sigImg.style.top = (ev.clientY - rect.top - 25) + 'px';
-                    }
-                });
-
-                workspace.appendChild(sigImg);
+    document.getElementById('sigUpload').onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const img = document.createElement('img');
+            img.src = ev.target.result;
+            img.className = 'sig-overlay';
+            img.style.left = '50px'; img.style.top = '50px';
+            img.onmousedown = (e) => {
+                const move = (ev) => { img.style.left = ev.clientX - 50 + 'px'; img.style.top = ev.clientY - 150 + 'px'; };
+                document.onmousemove = move;
+                document.onmouseup = () => document.onmousemove = null;
             };
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    });
+            workspace.appendChild(img);
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    };
 
-    // Compress and Download
-    btnDownload.addEventListener('click', () => {
-        btnDownload.innerText = "Processing...";
-        
-        // Remove all borders before capturing image
-        document.querySelectorAll('.typing-input').forEach(i => i.style.border = 'none');
-        document.querySelectorAll('.sig-overlay').forEach(s => s.style.border = 'none');
-
-        // Capture the form-workspace element
-        html2canvas(workspace, { scale: 1.5, backgroundColor: '#ffffff' }).then(canvas => {
-            let quality = 0.9;
-            
-            // Loop to compress strictly under 95KB
-            function compressImage() {
-                canvas.toBlob((blob) => {
-                    let size = blob.size / 1024;
-                    if(size > 95 && quality > 0.1) {
-                        quality -= 0.1;
-                        compressImage();
-                    } else {
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'Filled_Declaration_Form.jpg';
-                        a.click();
-                        btnDownload.innerText = "3. Generate & Compress (Under 100KB)";
-                    }
-                }, 'image/jpeg', quality);
-            }
-            compressImage();
+    document.getElementById('btnDownload').onclick = () => {
+        html2canvas(workspace).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'filled_form.jpg';
+            link.href = canvas.toDataURL("image/jpeg");
+            link.click();
         });
-    });
+    };
 </script>
 </body>
 </html>
