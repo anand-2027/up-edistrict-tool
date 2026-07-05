@@ -1,66 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aadhaar Cutter</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <style>
-        :root { --primary: #ff7619; --secondary: #0056b3; --success: #28a745; --bg: #f4f6f9; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; background: var(--bg); }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        .back-link { display: inline-block; margin-bottom: 15px; padding: 5px 10px; background: #eee; text-decoration: none; font-weight: bold; border-radius: 5px; color: #333; }
-        .header h1 { text-align: center; color: var(--secondary); margin-bottom: 25px; }
-        .input-group { margin-bottom: 15px; max-width: 400px; margin: 0 auto 15px auto; }
-        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn-load { display: block; width: max-content; margin: 0 auto; background: #17a2b8; color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .workspace { display: none; margin-top: 20px; }
-        .image-container { max-height: 450px; overflow: hidden; background: #eee; border-radius: 8px; text-align: center; }
-        img { max-width: 100%; max-height: 450px; }
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn { flex: 1; padding: 14px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        .btn-front { background: var(--primary); }
-        .btn-back { background: var(--secondary); }
-        .btn-download { background: var(--success); width: 100%; margin-top: 15px; display: none; }
-        .preview-area { display: none; margin-top: 25px; padding: 20px; border: 1px solid #ddd; background: #fafafa; border-radius: 8px; }
-        .preview-cards { display: flex; justify-content: center; gap: 20px; }
-        .card-preview { border: 1px solid #ccc; width: 250px; }
-        #loader { display: none; text-align: center; font-weight: bold; color: var(--primary); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aadhaar Smart Cutter — Anand e-Solutions</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 </head>
 <body>
-<div class="container">
-    <a href="index.html" class="back-link">← Back to Dashboard</a>
-    <div class="header"><h1>Aadhaar Smart Cutter</h1></div>
-    <div id="uploadSection" style="text-align: center; padding: 20px; border: 2px dashed #ccc;">
-        <div class="input-group">
-            <label>1. e-Aadhaar Password (e.g. SURE1990):</label>
-            <input type="password" id="pdfPassword">
-        </div>
-        <div class="input-group">
-            <label>2. Upload e-Aadhaar PDF:</label>
-            <input type="file" id="pdfInput" accept="application/pdf">
-        </div>
-        <button class="btn-load" id="btnLoadPdf">Extract PDF</button>
-        <p id="loader">Processing...</p>
+<div class="wrap">
+  <a href="index.html" class="back-link">← Dashboard</a>
+
+  <div class="masthead">
+    <span class="eyebrow">e-Aadhaar Unlock &amp; Crop</span>
+    <h1>Aadhaar Smart Cutter</h1>
+    <p>Unlock your e-Aadhaar PDF, crop both sides, and print them on one A4 sheet</p>
+  </div>
+
+  <div class="card">
+    <div id="uploadSection">
+      <div class="input-group">
+        <label>1 · e-Aadhaar password (first 4 letters of name in CAPS + year of birth, e.g. SURE1990)</label>
+        <input type="password" id="pdfPassword" placeholder="e.g. SURE1990">
+      </div>
+      <div class="input-group">
+        <label>2 · Upload e-Aadhaar PDF</label>
+        <input type="file" id="pdfInput" accept="application/pdf">
+      </div>
+      <button class="btn-action btn-compress-doc" id="btnLoadPdf" style="display:block;">🔓 Unlock &amp; Extract PDF</button>
+      <p id="loader">Reading PDF…</p>
+      <p id="pdfError" style="display:none; color:var(--stamp); text-align:center; font-weight:600; font-size:13.5px; margin-top:8px;"></p>
     </div>
-    <div class="workspace" id="workspace">
-        <p style="text-align:center; font-weight:bold; color:#856404; background:#fff3cd; padding:10px;" id="instructionText">Step 1: Crop FRONT SIDE and save.</p>
-        <div class="image-container"><img id="sourceImage" src=""></div>
-        <div class="btn-group">
-            <button class="btn btn-front" id="btnFront">✂️ Save Front Side</button>
-            <button class="btn btn-back" id="btnBack" disabled>✂️ Save Back Side</button>
-        </div>
+
+    <div class="tool-panel" id="workspace">
+      <p class="hint-banner" id="instructionText">Step 1: Crop the FRONT side and save.</p>
+      <div class="image-container"><img id="sourceImage" src="" alt="Aadhaar page"></div>
+      <div class="btn-group">
+        <button class="btn-action btn-front" id="btnFront" style="display:block;">✂️ Save Front Side</button>
+        <button class="btn-action btn-back" id="btnBack" style="display:block;" disabled>✂️ Save Back Side</button>
+      </div>
     </div>
-    <div class="preview-area" id="previewArea">
-        <div class="preview-cards">
-            <div><p align="center">Front</p><img id="frontPreview" class="card-preview"></div>
-            <div><p align="center">Back</p><img id="backPreview" class="card-preview"></div>
+
+    <div class="result-box" id="previewArea">
+      <div class="stamp">READY<br>TO PRINT</div>
+      <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+        <div>
+          <p style="font-weight:600; font-size:13px; color:var(--ink-soft); margin:0 0 6px;">Front</p>
+          <img id="frontPreview" style="width:230px; max-width:100%; border:1px solid var(--line); border-radius:6px;">
         </div>
-        <button class="btn btn-download" id="btnDownload">📄 Download A4 Print PDF</button>
+        <div>
+          <p style="font-weight:600; font-size:13px; color:var(--ink-soft); margin:0 0 6px;">Back</p>
+          <img id="backPreview" style="width:230px; max-width:100%; border:1px solid var(--line); border-radius:6px;">
+        </div>
+      </div>
+      <button class="btn-action btn-download" id="btnDownload" style="display:block;">📄 Download A4 Print PDF</button>
     </div>
+  </div>
+
+  <p class="footer-note">YOUR PDF PASSWORD IS USED ONLY IN THE BROWSER · NEVER SENT ANYWHERE</p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
@@ -68,58 +65,83 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-    let cropper, frontImgData, backImgData;
-    const CARD_ASPECT_RATIO = 85.6 / 54;
-    document.getElementById('btnLoadPdf').addEventListener('click', () => {
-        const file = document.getElementById('pdfInput').files[0];
-        const pass = document.getElementById('pdfPassword').value;
-        if (!file || !pass) return alert("Upload PDF and enter password.");
-        document.getElementById('loader').style.display = "block";
-        const reader = new FileReader();
-        reader.onload = function() {
-            pdfjsLib.getDocument({ data: new Uint8Array(this.result), password: pass }).promise.then(pdf => {
-                pdf.getPage(1).then(page => {
-                    const viewport = page.getViewport({ scale: 2.5 });
-                    const canvas = document.createElement('canvas'), context = canvas.getContext('2d');
-                    canvas.height = viewport.height; canvas.width = viewport.width;
-                    page.render({ canvasContext: context, viewport: viewport }).promise.then(() => {
-                        document.getElementById('sourceImage').src = canvas.toDataURL('image/jpeg', 1.0);
-                        document.getElementById('uploadSection').style.display = 'none';
-                        document.getElementById('workspace').style.display = 'block';
-                        cropper = new Cropper(document.getElementById('sourceImage'), { aspectRatio: CARD_ASPECT_RATIO, viewMode: 1, autoCropArea: 0.2 });
-                    });
-                });
-            }).catch(e => {
-                document.getElementById('loader').style.display = "none";
-                alert(e.name === 'PasswordException' ? "Incorrect Password!" : "Error loading PDF");
+  let cropper, frontImgData, backImgData;
+  const CARD_ASPECT_RATIO = 85.6 / 54;
+
+  document.getElementById('btnLoadPdf').addEventListener('click', () => {
+    const file = document.getElementById('pdfInput').files[0];
+    const pass = document.getElementById('pdfPassword').value;
+    const errorEl = document.getElementById('pdfError');
+    errorEl.style.display = 'none';
+
+    if (!file || !pass) {
+      errorEl.textContent = 'Please choose a PDF and enter its password.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    document.getElementById('loader').classList.add('show');
+    document.getElementById('btnLoadPdf').disabled = true;
+
+    const reader = new FileReader();
+    reader.onload = function () {
+      pdfjsLib.getDocument({ data: new Uint8Array(this.result), password: pass }).promise.then(pdf => {
+        pdf.getPage(1).then(page => {
+          const viewport = page.getViewport({ scale: 2.5 });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          page.render({ canvasContext: context, viewport: viewport }).promise.then(() => {
+            document.getElementById('sourceImage').src = canvas.toDataURL('image/jpeg', 1.0);
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('workspace').classList.add('active');
+            document.getElementById('loader').classList.remove('show');
+            cropper = new Cropper(document.getElementById('sourceImage'), {
+              aspectRatio: CARD_ASPECT_RATIO, viewMode: 1, autoCropArea: 0.2
             });
-        };
-        reader.readAsArrayBuffer(file);
-    });
-    document.getElementById('btnFront').addEventListener('click', () => {
-        if(!cropper) return;
-        frontImgData = cropper.getCroppedCanvas({ width: 856, height: 540 }).toDataURL('image/jpeg', 1.0);
-        document.getElementById('frontPreview').src = frontImgData;
-        document.getElementById('btnFront').disabled = true;
-        document.getElementById('btnBack').disabled = false;
-        document.getElementById('instructionText').innerText = "Step 2: Crop BACK SIDE and save.";
-    });
-    document.getElementById('btnBack').addEventListener('click', () => {
-        if(!cropper) return;
-        backImgData = cropper.getCroppedCanvas({ width: 856, height: 540 }).toDataURL('image/jpeg', 1.0);
-        document.getElementById('backPreview').src = backImgData;
-        document.getElementById('btnBack').disabled = true;
-        document.getElementById('previewArea').style.display = 'block';
-        document.getElementById('btnDownload').style.display = 'block';
-        document.getElementById('instructionText').innerText = "Done! Download below.";
-    });
-    document.getElementById('btnDownload').addEventListener('click', () => {
-        const { jsPDF } = window.jspdf; const pdf = new jsPDF('p', 'mm', 'a4');
-        const w = 85.6, h = 54.0, x = (210 - w) / 2;
-        pdf.addImage(frontImgData, 'JPEG', x, 20, w, h); pdf.addImage(backImgData, 'JPEG', x, 84, w, h);
-        pdf.setLineWidth(0.2); pdf.rect(x, 20, w, h); pdf.rect(x, 84, w, h);
-        pdf.save('Aadhaar_Print.pdf');
-    });
+          });
+        });
+      }).catch(e => {
+        document.getElementById('loader').classList.remove('show');
+        document.getElementById('btnLoadPdf').disabled = false;
+        errorEl.textContent = e.name === 'PasswordException' ? 'Incorrect password. Please try again.' : 'Could not read this PDF. Please check the file.';
+        errorEl.style.display = 'block';
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
+  document.getElementById('btnFront').addEventListener('click', () => {
+    if (!cropper) return;
+    frontImgData = cropper.getCroppedCanvas({ width: 856, height: 540 }).toDataURL('image/jpeg', 1.0);
+    document.getElementById('frontPreview').src = frontImgData;
+    document.getElementById('btnFront').disabled = true;
+    document.getElementById('btnBack').disabled = false;
+    document.getElementById('instructionText').innerText = 'Step 2: Crop the BACK side and save.';
+    cropper.reset();
+  });
+
+  document.getElementById('btnBack').addEventListener('click', () => {
+    if (!cropper) return;
+    backImgData = cropper.getCroppedCanvas({ width: 856, height: 540 }).toDataURL('image/jpeg', 1.0);
+    document.getElementById('backPreview').src = backImgData;
+    document.getElementById('btnBack').disabled = true;
+    document.getElementById('previewArea').style.display = 'block';
+    document.getElementById('instructionText').innerText = 'Done! Download your print-ready PDF below.';
+  });
+
+  document.getElementById('btnDownload').addEventListener('click', () => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const w = 85.6, h = 54.0, x = (210 - w) / 2;
+    pdf.addImage(frontImgData, 'JPEG', x, 20, w, h);
+    pdf.addImage(backImgData, 'JPEG', x, 84, w, h);
+    pdf.setLineWidth(0.2);
+    pdf.rect(x, 20, w, h);
+    pdf.rect(x, 84, w, h);
+    pdf.save('Aadhaar_Print.pdf');
+  });
 </script>
 </body>
 </html>
