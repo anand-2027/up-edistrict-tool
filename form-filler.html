@@ -1,76 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Smart Declaration Form Filler</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f6f9; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-        #form-workspace { position: relative; display: inline-block; border: 1px solid #ccc; margin-top: 10px; }
-        #base-image { max-width: 100%; display: block; }
-        .typing-input { position: absolute; background: transparent; border: 1px dashed #ff7619; font-size: 16px; z-index: 10; }
-        .sig-overlay { position: absolute; max-width: 100px; cursor: move; z-index: 20; border: 1px dashed #ccc; }
-        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Declaration Form Filler — Anand e-Solutions</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  #form-workspace {
+    position: relative;
+    display: inline-block;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-top: 16px;
+    overflow: hidden;
+    background: var(--paper-2);
+    max-width: 100%;
+    cursor: text;
+  }
+  #base-image { max-width: 100%; display: block; user-select: none; }
+  .placeholder-msg { padding: 60px 20px; text-align: center; color: var(--ink-soft); font-size: 14px; }
+  .typing-field {
+    position: absolute;
+    min-width: 20px;
+    background: rgba(232,135,30,0.06);
+    border: 1px dashed var(--saffron);
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    padding: 1px 3px;
+    outline: none;
+    white-space: pre;
+    cursor: text;
+    z-index: 10;
+  }
+  .typing-field:focus { border-style: solid; background: rgba(232,135,30,0.12); }
+  .sig-overlay {
+    position: absolute;
+    max-width: 130px;
+    cursor: move;
+    z-index: 20;
+    border: 1px dashed #999;
+    touch-action: none;
+  }
+  .sig-overlay.dragging { border-color: var(--saffron); }
+  .field-toolbar {
+    position: absolute;
+    top: -26px;
+    left: 0;
+    display: none;
+    gap: 4px;
+  }
+  .field-toolbar button {
+    font-size: 10px;
+    border: none;
+    background: var(--stamp);
+    color: white;
+    border-radius: 4px;
+    padding: 2px 5px;
+    cursor: pointer;
+  }
+  .field-wrap:hover .field-toolbar, .sig-wrap:hover .field-toolbar { display: flex; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .controls label.file-btn {
+    flex: 1;
+    min-width: 160px;
+    text-align: center;
+    padding: 12px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+  .controls input[type=file] { display: none; }
+</style>
 </head>
 <body>
-<div class="container">
-    <a href="index.html">← Back to Dashboard</a>
-    <h2>Smart Declaration Form Filler</h2>
+<div class="wrap">
+  <a href="index.html" class="back-link">← Dashboard</a>
+
+  <div class="masthead">
+    <span class="eyebrow">Type · Sign · Export</span>
+    <h1>Declaration Form Filler</h1>
+    <p>Click anywhere on the scanned form to type, drop in a signature, then export a clean JPG</p>
+  </div>
+
+  <div class="card">
     <div class="controls">
+      <label class="file-btn">📄 Upload Form Image
         <input type="file" id="formUpload" accept="image/*">
-        <input type="file" id="sigUpload" accept="image/*" title="Add Signature">
-        <button id="btnDownload">Generate JPG</button>
+      </label>
+      <label class="file-btn">✍️ Add Signature
+        <input type="file" id="sigUpload" accept="image/*">
+      </label>
     </div>
-    <div id="form-workspace"><img id="base-image" src=""></div>
+    <p class="hint-banner">Tip: click any blank space on the form to add a text field. Drag the signature to position it. Hover a field for delete (✕).</p>
+
+    <div id="form-workspace">
+      <div class="placeholder-msg" id="placeholderMsg">Upload a form image to begin</div>
+      <img id="base-image" src="" style="display:none;">
+    </div>
+
+    <div class="btn-group" style="margin-top:16px;">
+      <button class="btn-action btn-compress-doc" id="btnDownload" style="display:block;">⬇️ Generate JPG</button>
+      <button class="btn-action btn-front" id="btnClearFields" style="display:block;">🧹 Clear All Fields</button>
+    </div>
+  </div>
+
+  <p class="footer-note">FORMS ARE PROCESSED ENTIRELY IN YOUR BROWSER</p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-    const workspace = document.getElementById('form-workspace');
-    const baseImg = document.getElementById('base-image');
+  const workspace = document.getElementById('form-workspace');
+  const baseImg = document.getElementById('base-image');
+  const placeholderMsg = document.getElementById('placeholderMsg');
 
-    document.getElementById('formUpload').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => { baseImg.src = ev.target.result; };
-        reader.readAsDataURL(e.target.files[0]);
+  document.getElementById('formUpload').onchange = (e) => {
+    if (!e.target.files.length) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      baseImg.src = ev.target.result;
+      baseImg.style.display = 'block';
+      placeholderMsg.style.display = 'none';
     };
+    reader.readAsDataURL(e.target.files[0]);
+  };
 
-    workspace.onclick = (e) => {
-        if (e.target !== baseImg && e.target !== workspace) return;
-        const input = document.createElement('input');
-        input.className = 'typing-input';
-        input.style.left = e.offsetX + 'px';
-        input.style.top = e.offsetY + 'px';
-        workspace.appendChild(input);
-        input.focus();
-    };
+  // ---- Click to add a typing field ----
+  workspace.addEventListener('click', (e) => {
+    if (e.target !== baseImg && e.target !== workspace) return;
+    if (baseImg.style.display === 'none') return;
+    const rect = workspace.getBoundingClientRect();
+    addTypingField(e.clientX - rect.left, e.clientY - rect.top);
+  });
 
-    document.getElementById('sigUpload').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const img = document.createElement('img');
-            img.src = ev.target.result;
-            img.className = 'sig-overlay';
-            img.style.left = '50px'; img.style.top = '50px';
-            img.onmousedown = (e) => {
-                const move = (ev) => { img.style.left = ev.clientX - 50 + 'px'; img.style.top = ev.clientY - 150 + 'px'; };
-                document.onmousemove = move;
-                document.onmouseup = () => document.onmousemove = null;
-            };
-            workspace.appendChild(img);
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
+  function addTypingField(x, y) {
+    const wrap = document.createElement('div');
+    wrap.className = 'field-wrap';
+    wrap.style.position = 'absolute';
+    wrap.style.left = x + 'px';
+    wrap.style.top = y + 'px';
 
-    document.getElementById('btnDownload').onclick = () => {
-        html2canvas(workspace).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'filled_form.jpg';
-            link.href = canvas.toDataURL("image/jpeg");
-            link.click();
-        });
+    const toolbar = document.createElement('div');
+    toolbar.className = 'field-toolbar';
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '✕';
+    delBtn.onclick = (ev) => { ev.stopPropagation(); wrap.remove(); };
+    toolbar.appendChild(delBtn);
+
+    const field = document.createElement('div');
+    field.className = 'typing-field';
+    field.contentEditable = 'true';
+    field.setAttribute('data-placeholder', 'Type here');
+
+    wrap.appendChild(toolbar);
+    wrap.appendChild(field);
+    workspace.appendChild(wrap);
+    field.focus();
+
+    // remove empty fields on blur
+    field.addEventListener('blur', () => {
+      if (field.textContent.trim() === '') wrap.remove();
+    });
+  }
+
+  // ---- Signature upload + drag ----
+  document.getElementById('sigUpload').onchange = (e) => {
+    if (!e.target.files.length) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'sig-wrap';
+      wrap.style.position = 'absolute';
+      wrap.style.left = '40px';
+      wrap.style.top = '40px';
+      wrap.style.zIndex = 20;
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'field-toolbar';
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✕';
+      delBtn.onclick = () => wrap.remove();
+      toolbar.appendChild(delBtn);
+
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      img.className = 'sig-overlay';
+      img.style.position = 'static';
+
+      wrap.appendChild(toolbar);
+      wrap.appendChild(img);
+      workspace.appendChild(wrap);
+
+      makeDraggable(wrap, img);
     };
+    reader.readAsDataURL(e.target.files[0]);
+  };
+
+  function makeDraggable(wrap, handle) {
+    let offsetX = 0, offsetY = 0, dragging = false;
+
+    const start = (clientX, clientY) => {
+      const rect = wrap.getBoundingClientRect();
+      offsetX = clientX - rect.left;
+      offsetY = clientY - rect.top;
+      dragging = true;
+      handle.classList.add('dragging');
+    };
+    const move = (clientX, clientY) => {
+      if (!dragging) return;
+      const wsRect = workspace.getBoundingClientRect();
+      wrap.style.left = (clientX - wsRect.left - offsetX) + 'px';
+      wrap.style.top = (clientY - wsRect.top - offsetY) + 'px';
+    };
+    const end = () => { dragging = false; handle.classList.remove('dragging'); };
+
+    handle.addEventListener('mousedown', (e) => { e.preventDefault(); start(e.clientX, e.clientY); });
+    document.addEventListener('mousemove', (e) => move(e.clientX, e.clientY));
+    document.addEventListener('mouseup', end);
+
+    handle.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      start(t.clientX, t.clientY);
+    }, { passive: true });
+    document.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      const t = e.touches[0];
+      move(t.clientX, t.clientY);
+    }, { passive: true });
+    document.addEventListener('touchend', end);
+  }
+
+  document.getElementById('btnClearFields').addEventListener('click', () => {
+    workspace.querySelectorAll('.field-wrap, .sig-wrap').forEach(el => el.remove());
+  });
+
+  document.getElementById('btnDownload').addEventListener('click', () => {
+    if (baseImg.style.display === 'none') { alert('Please upload a form image first.'); return; }
+    // Hide toolbars & field borders for a clean capture
+    document.querySelectorAll('.field-toolbar').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.typing-field').forEach(f => f.style.border = 'none');
+    document.querySelectorAll('.sig-overlay').forEach(s => s.style.border = 'none');
+
+    html2canvas(workspace, { useCORS: true }).then(canvas => {
+      document.querySelectorAll('.typing-field').forEach(f => f.style.border = '1px dashed var(--saffron)');
+      document.querySelectorAll('.sig-overlay').forEach(s => s.style.border = '1px dashed #999');
+
+      const link = document.createElement('a');
+      link.download = 'filled_form.jpg';
+      link.href = canvas.toDataURL('image/jpeg', 0.92);
+      link.click();
+    });
+  });
 </script>
 </body>
 </html>
