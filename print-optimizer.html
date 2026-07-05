@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Layout Optimizer - Anand Information</title>
+    
+    <style>
+        :root { --primary: #ff7619; --secondary: #0056b3; --success: #28a745; --bg: #f4f6f9; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; background: var(--bg); }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .back-link { display: inline-block; margin-bottom: 15px; padding: 5px 10px; background: #eee; text-decoration: none; font-weight: bold; border-radius: 5px; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .header h1 { margin: 0; color: var(--secondary); font-size: 24px; }
+        
+        .upload-section { background: #fdfdfd; border: 2px dashed #0056b3; padding: 30px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .upload-section:hover { background: #f0f8ff; border-color: var(--primary); }
+        
+        .preview-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; justify-content: center; }
+        .preview-img { width: 120px; height: 75px; object-fit: cover; border: 2px solid #ccc; border-radius: 4px; }
+        
+        .btn-generate { display: none; width: 100%; background: var(--success); color: white; padding: 15px; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 25px; }
+        .instruction { color: #666; font-size: 14px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+    
+    <div class="header">
+        <h1>🖨️ Multi-Card Print Layout Optimizer</h1>
+        <p style="color: #666;">Upload multiple cropped ID cards (Front/Back). We will auto-arrange them on a single A4 sheet.</p>
+    </div>
+
+    <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+        <h3 style="margin:0; color:#333;">Click to Select Images (Max 10)</h3>
+        <p class="instruction">Select Aadhaar, PAN, or Voter ID images from your device.</p>
+        <input type="file" id="fileInput" accept="image/jpeg, image/png" multiple style="display:none;">
+    </div>
+
+    <div class="preview-grid" id="previewGrid"></div>
+
+    <button class="btn-generate" id="btnGenerate">📄 Generate A4 Print PDF</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const previewGrid = document.getElementById('previewGrid');
+    const btnGenerate = document.getElementById('btnGenerate');
+    
+    let uploadedImages = []; // Will store Data URLs of selected images
+
+    fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files).slice(0, 10); // Limit to 10 images max
+        if(files.length === 0) return;
+        
+        uploadedImages = [];
+        previewGrid.innerHTML = ''; // Clear old previews
+        
+        let filesProcessed = 0;
+
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const imgData = event.target.result;
+                uploadedImages.push(imgData);
+                
+                // Show preview
+                const img = document.createElement('img');
+                img.src = imgData;
+                img.className = 'preview-img';
+                previewGrid.appendChild(img);
+                
+                filesProcessed++;
+                if(filesProcessed === files.length) {
+                    btnGenerate.style.display = 'block';
+                    btnGenerate.innerText = `📄 Generate A4 Print PDF (${uploadedImages.length} Cards)`;
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    btnGenerate.addEventListener('click', () => {
+        if(uploadedImages.length === 0) return;
+        
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4'); // Standard A4: 210mm x 297mm
+        
+        // Standard Card Dimensions for printing (CR80)
+        const cardWidth = 85.6; 
+        const cardHeight = 54.0;
+        
+        // Grid Coordinates on A4
+        // Columns (Left, Right)
+        const xPositions = [15, 110]; 
+        // Rows (Top to Bottom) - Spaced with 10mm gap
+        const yPositions = [15, 75, 135, 195, 255]; 
+        
+        let imgIndex = 0;
+        
+        for(let row = 0; row < 5; row++) {
+            for(let col = 0; col < 2; col++) {
+                if(imgIndex < uploadedImages.length) {
+                    const x = xPositions[col];
+                    const y = yPositions[row];
+                    
+                    pdf.addImage(uploadedImages[imgIndex], 'JPEG', x, y, cardWidth, cardHeight);
+                    
+                    // Draw cutting borders
+                    pdf.setLineWidth(0.2);
+                    pdf.setDrawColor(180, 180, 180);
+                    pdf.rect(x, y, cardWidth, cardHeight);
+                    
+                    imgIndex++;
+                }
+            }
+        }
+        
+        pdf.save('Multi_Card_Print.pdf');
+    });
+</script>
+</body>
+</html>
