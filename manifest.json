@@ -1,11 +1,12 @@
 {
   "name": "Anand e-Solutions",
   "short_name": "Anand Info",
-  "description": "Smart utility toolkit for CSC and Cyber Cafes.",
-  "start_url": "/up-edistrict-tool/index.html",
+  "description": "Smart utility toolkit for CSC and Cyber Cafes: photo/document resizing, Aadhaar cropping, form filling, and print layout.",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#f8fbff",
-  "theme_color": "#0056b3",
+  "background_color": "#f7f3ea",
+  "theme_color": "#16213a",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2885/2885417.png",
