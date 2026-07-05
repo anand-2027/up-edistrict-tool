@@ -1,183 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UP eDistrict Resizer Tool</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    
-    <style>
-        :root { --primary: #ff7619; --secondary: #0056b3; --success: #28a745; --bg: #f4f6f9; --text: #333; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; background: var(--bg); color: var(--text); }
-        .container { max-width: 750px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        .top-nav-links { margin-bottom: 20px; font-weight: bold; }
-        .top-nav-links a { text-decoration: none; padding: 5px 10px; border-radius: 5px; background: #eee; color: var(--text); }
-        .header h1 { font-size: 24px; color: var(--secondary); text-align: center; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 25px; }
-        .tab-btn { flex: 1; padding: 12px; background: #e9ecef; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; font-size: 15px; }
-        .tab-btn.active { background: var(--secondary); color: white; }
-        .tool-panel { display: none; }
-        .tool-panel.active { display: block; }
-        .upload-box { border: 2px dashed var(--secondary); padding: 35px 20px; text-align: center; border-radius: 8px; background: #fdfdfd; cursor: pointer; font-weight: bold; color: #555; position: relative; }
-        .badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
-        .badge.doc-badge { background: #d9534f; }
-        #image-wrapper { max-height: 350px; margin-top: 20px; display: none; }
-        img { max-width: 100%; max-height: 350px; }
-        .btn-action { width: 100%; padding: 14px; margin-top: 15px; border: none; border-radius: 6px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; display: none; }
-        .btn-crop { background: var(--primary); }
-        .btn-compress-doc { background: var(--secondary); }
-        .btn-download { background: var(--success); text-decoration: none; text-align: center; display: block; margin-top: 15px; }
-        .result-box { margin-top: 20px; display: none; background: #e8f5e9; padding: 20px; border-radius: 8px; border: 1px solid #c8e6c9; text-align: center; }
-        .status-pass { color: var(--success); font-weight: bold; font-size: 18px; display: block; margin-bottom: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UP eDistrict Resizer — Anand e-Solutions</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 </head>
 <body>
-<div class="container">
-    <div class="top-nav-links">
-        <a href="index.html">← Back to Dashboard</a>
-    </div>
-    
-    <div class="header">
-        <h1>UP eDistrict Resizer</h1>
-    </div>
-    
+<div class="wrap">
+  <a href="index.html" class="back-link">← Dashboard</a>
+
+  <div class="masthead">
+    <span class="eyebrow">Photo &amp; Document Sizing</span>
+    <h1>UP eDistrict Resizer</h1>
+    <p>Meet the exact 50 KB photo / 100 KB PDF limits required by eDistrict forms</p>
+  </div>
+
+  <div class="card">
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('photo')" id="btn-tab-photo">📸 Photo Tool (50KB)</button>
-        <button class="tab-btn" onclick="switchTab('doc')" id="btn-tab-doc">📄 Document Tool (100KB)</button>
+      <button class="tab-btn active" onclick="switchTab('photo')" id="btn-tab-photo">📸 Photo (50 KB)</button>
+      <button class="tab-btn" onclick="switchTab('doc')" id="btn-tab-doc">📄 Document (100 KB PDF)</button>
     </div>
-    
+
+    <!-- PHOTO TOOL -->
     <div id="photo-panel" class="tool-panel active">
-        <div class="upload-box" onclick="document.getElementById('photoInput').click()">
-            <div class="badge">Strictly Under 50 KB</div>
-            <span>Click here to Upload Passport Photo</span>
-            <input type="file" id="photoInput" accept="image/jpeg, image/png" style="display:none">
-        </div>
-        
-        <div id="image-wrapper"><img id="image-element" src=""></div>
-        <button class="btn-action btn-crop" id="cropBtn">Crop & Compress Photo</button>
-        
-        <div class="result-box" id="photo-result">
-            <div id="photo-preview-container"></div>
-            <p id="photo-size-info"></p>
-            <a id="photoDownloadLink" class="btn-action btn-download" download="UP_eDistrict_Photo.jpg">⬇️ Download Photo</a>
-        </div>
+      <div class="upload-box" id="photoDropzone">
+        <div class="badge">Strictly under 50 KB</div>
+        <span class="icon">🖼️</span>
+        <span class="label">Click or drop a passport photo</span>
+        <span class="sub">JPG or PNG · cropped to 3.5 × 4.5 cm</span>
+        <input type="file" id="photoInput" accept="image/jpeg, image/png" style="display:none">
+      </div>
+
+      <div id="image-wrapper"><img id="image-element" src="" alt="Uploaded photo preview"></div>
+      <div class="btn-group">
+        <button class="btn-action btn-crop" id="cropBtn">✂️ Crop &amp; Compress</button>
+        <button class="btn-action btn-compress-doc" id="photoResetBtn" style="display:none;">↺ Start Over</button>
+      </div>
+
+      <div class="result-box" id="photo-result">
+        <div class="stamp">PASS<br>50KB</div>
+        <div id="photo-preview-container"></div>
+        <p id="photo-size-info"></p>
+        <a id="photoDownloadLink" class="btn-action btn-download" download="UP_eDistrict_Photo.jpg" style="display:block;">⬇️ Download Photo</a>
+      </div>
     </div>
-    
+
+    <!-- DOC TOOL -->
     <div id="doc-panel" class="tool-panel">
-        <div class="upload-box" onclick="document.getElementById('docInput').click()">
-            <div class="badge doc-badge">Strictly Under 100 KB (PDF)</div>
-            <span>Click here to Upload Document Image</span>
-            <input type="file" id="docInput" accept="image/jpeg, image/png" style="display:none">
-        </div>
-        
-        <button class="btn-action btn-compress-doc" id="docBtn">Compress & Generate PDF</button>
-        
-        <div class="result-box" id="doc-result">
-            <p id="doc-size-info"></p>
-            <a id="docDownloadLink" class="btn-action btn-download" download="UP_eDistrict_Document.pdf">⬇️ Download PDF</a>
-        </div>
+      <div class="upload-box" id="docDropzone">
+        <div class="badge doc-badge">Strictly under 100 KB</div>
+        <span class="icon">📄</span>
+        <span class="label">Click or drop a scanned document</span>
+        <span class="sub">JPG or PNG · exported as A4 PDF</span>
+        <input type="file" id="docInput" accept="image/jpeg, image/png" style="display:none">
+      </div>
+
+      <div id="doc-preview-wrapper" style="display:none; margin-top:16px; text-align:center; background:var(--paper-2); border-radius:10px; padding:10px;">
+        <img id="doc-image-element" src="" alt="Document preview">
+      </div>
+
+      <button class="btn-action btn-compress-doc" id="docBtn">📦 Compress &amp; Generate PDF</button>
+      <p id="loader">Compressing…</p>
+
+      <div class="result-box" id="doc-result">
+        <div class="stamp">PASS<br>100KB</div>
+        <p id="doc-size-info"></p>
+        <a id="docDownloadLink" class="btn-action btn-download" download="UP_eDistrict_Document.pdf" style="display:block;">⬇️ Download PDF</a>
+      </div>
     </div>
+  </div>
+
+  <p class="footer-note">ALL PROCESSING HAPPENS ON YOUR DEVICE · NOTHING IS UPLOADED</p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <script>
-    function switchTab(type) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
-        if(type === 'photo') {
-            document.getElementById('btn-tab-photo').classList.add('active');
-            document.getElementById('photo-panel').classList.add('active');
-        } else {
-            document.getElementById('btn-tab-doc').classList.add('active');
-            document.getElementById('doc-panel').classList.add('active');
-        }
+  function switchTab(type) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+    if (type === 'photo') {
+      document.getElementById('btn-tab-photo').classList.add('active');
+      document.getElementById('photo-panel').classList.add('active');
+    } else {
+      document.getElementById('btn-tab-doc').classList.add('active');
+      document.getElementById('doc-panel').classList.add('active');
     }
-    
-    // Photo Logic
-    let cropper;
-    const photoInput = document.getElementById('photoInput');
-    const imgElement = document.getElementById('image-element');
-    
-    photoInput.addEventListener('change', (e) => {
-        if(e.target.files.length > 0) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                imgElement.src = event.target.result;
-                document.getElementById('image-wrapper').style.display = 'block';
-                document.getElementById('cropBtn').style.display = 'block';
-                document.getElementById('photo-result').style.display = 'none';
-                if(cropper) cropper.destroy();
-                cropper = new Cropper(imgElement, { aspectRatio: 3.5 / 4.5, viewMode: 1 });
-            };
-            reader.readAsDataURL(e.target.files[0]);
+  }
+
+  // ---------------- Drag & drop helper ----------------
+  function wireDropzone(zoneId, inputId) {
+    const zone = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
+    zone.addEventListener('click', () => input.click());
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.background = '#fbeedb'; });
+    zone.addEventListener('dragleave', () => { zone.style.background = ''; });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.style.background = '';
+      if (e.dataTransfer.files.length) {
+        input.files = e.dataTransfer.files;
+        input.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+  wireDropzone('photoDropzone', 'photoInput');
+  wireDropzone('docDropzone', 'docInput');
+
+  // ---------------- Photo logic ----------------
+  let cropper;
+  const photoInput = document.getElementById('photoInput');
+  const imgElement = document.getElementById('image-element');
+
+  photoInput.addEventListener('change', (e) => {
+    if (e.target.files.length === 0) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      imgElement.src = event.target.result;
+      document.getElementById('image-wrapper').style.display = 'block';
+      document.getElementById('cropBtn').style.display = 'block';
+      document.getElementById('photoResetBtn').style.display = 'block';
+      document.getElementById('photo-result').style.display = 'none';
+      if (cropper) cropper.destroy();
+      cropper = new Cropper(imgElement, { aspectRatio: 3.5 / 4.5, viewMode: 1 });
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  });
+
+  document.getElementById('photoResetBtn').addEventListener('click', () => {
+    if (cropper) cropper.destroy();
+    cropper = null;
+    photoInput.value = '';
+    document.getElementById('image-wrapper').style.display = 'none';
+    document.getElementById('cropBtn').style.display = 'none';
+    document.getElementById('photoResetBtn').style.display = 'none';
+    document.getElementById('photo-result').style.display = 'none';
+  });
+
+  document.getElementById('cropBtn').addEventListener('click', () => {
+    if (!cropper) return;
+    const canvas = cropper.getCroppedCanvas({ width: 350, height: 450 });
+    let quality = 0.85;
+
+    function checkAndLoop() {
+      canvas.toBlob((blob) => {
+        const size = blob.size / 1024;
+        if (size > 48 && quality > 0.1) {
+          quality -= 0.05;
+          checkAndLoop();
+        } else {
+          const url = URL.createObjectURL(blob);
+          document.getElementById('photo-preview-container').innerHTML =
+            `<img src="${url}" style="width:130px;height:165px;border:2px solid var(--success); border-radius:6px;">`;
+          document.getElementById('photo-size-info').innerHTML =
+            `<span class="status-pass">✅ ${size.toFixed(2)} KB</span> Perfect for UP eDistrict!`;
+          document.getElementById('photoDownloadLink').href = url;
+          document.getElementById('photo-result').style.display = 'block';
         }
-    });
-    
-    document.getElementById('cropBtn').addEventListener('click', () => {
-        if(!cropper) return;
-        const canvas = cropper.getCroppedCanvas({ width: 350, height: 450 });
-        let quality = 0.85;
-        function checkAndLoop() {
-            canvas.toBlob((blob) => {
-                let size = blob.size / 1024;
-                if(size > 48 && quality > 0.1) {
-                    quality -= 0.05; checkAndLoop();
-                } else {
-                    const url = URL.createObjectURL(blob);
-                    document.getElementById('photo-preview-container').innerHTML = `<img src="${url}" style="width:130px;height:165px;border:2px solid var(--success); border-radius:4px;">`;
-                    document.getElementById('photo-size-info').innerHTML = `<span class="status-pass">✅ ${size.toFixed(2)} KB</span> Perfect for UP eDistrict!`;
-                    document.getElementById('photoDownloadLink').href = url;
-                    document.getElementById('photo-result').style.display = 'block';
-                }
-            }, 'image/jpeg', quality);
+      }, 'image/jpeg', quality);
+    }
+    checkAndLoop();
+  });
+
+  // ---------------- Document logic ----------------
+  let docImgData = null;
+  document.getElementById('docInput').addEventListener('change', (e) => {
+    if (e.target.files.length === 0) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        docImgData = img;
+        document.getElementById('doc-image-element').src = event.target.result;
+        document.getElementById('doc-preview-wrapper').style.display = 'block';
+        document.getElementById('docBtn').style.display = 'block';
+        document.getElementById('doc-result').style.display = 'none';
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  });
+
+  document.getElementById('docBtn').addEventListener('click', () => {
+    if (!docImgData) return;
+    const loader = document.getElementById('loader');
+    loader.classList.add('show');
+    document.getElementById('docBtn').disabled = true;
+
+    setTimeout(() => {
+      let quality = 0.8, scale = 1.0;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      function compressDoc() {
+        canvas.width = docImgData.width * scale;
+        canvas.height = docImgData.height * scale;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(docImgData, 0, 0, canvas.width, canvas.height);
+        const imgDataUrl = canvas.toDataURL('image/jpeg', quality);
+        const sizeKB = (imgDataUrl.length * 0.75) / 1024;
+
+        if (sizeKB > 95 && (quality > 0.1 || scale > 0.3)) {
+          if (quality > 0.3) { quality -= 0.15; } else { scale -= 0.15; quality = 0.7; }
+          compressDoc();
+        } else {
+          generatePDF(imgDataUrl);
         }
-        checkAndLoop();
-    });
-    
-    // Document Logic
-    let docImgData = null;
-    document.getElementById('docInput').addEventListener('change', (e) => {
-        if(e.target.files.length > 0) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => { docImgData = img; document.getElementById('docBtn').style.display = 'block'; };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    });
-    
-    document.getElementById('docBtn').addEventListener('click', () => {
-        if(!docImgData) return;
-        document.getElementById('docBtn').innerText = "Processing...";
-        setTimeout(() => {
-            let quality = 0.8, scale = 1.0;
-            const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
-            function compressDoc() {
-                canvas.width = docImgData.width * scale; canvas.height = docImgData.height * scale;
-                ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.drawImage(docImgData, 0, 0, canvas.width, canvas.height);
-                const imgDataUrl = canvas.toDataURL('image/jpeg', quality);
-                let sizeKB = (imgDataUrl.length * 0.75) / 1024;
-                if (sizeKB > 95 && (quality > 0.1 || scale > 0.3)) {
-                    quality > 0.3 ? quality -= 0.15 : (scale -= 0.15, quality = 0.7);
-                    compressDoc(); 
-                } else { generatePDF(imgDataUrl); }
-            }
-            compressDoc();
-        }, 100);
-    });
-    
-    function generatePDF(imgDataUrl) {
-        const { jsPDF } = window.jspdf; const pdf = new jsPDF('p', 'mm', 'a4');
-        const img = new Image(); img.src = imgDataUrl;
-        img.onload = () => {
-            let finalWidth = 190, finalHeight = finalWidth / (img.width / img.height);
-            if (finalHeight > 277) { finalHeight = 277; finalWidth = finalHeight * (img.width / img.height); }
-            pdf.addImage(imgDataUrl, 'JPEG', (210 - finalWidth)/2, 10, finalWidth, finalHeight);
-            const pdfBlob = pdf.output('blob');
-            document.getElementById('doc-size-info').innerHTML = `<span class="status-pass">✅ ${(pdfBlob.size / 1024).toFixed(2)} KB</span> PDF Ready!`;
-            document.getElementById('docDownloadLink').href = URL.createObjectURL
+      }
+      compressDoc();
+    }, 100);
+  });
+
+  function generatePDF(imgDataUrl) {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const img = new Image();
+    img.onload = () => {
+      let finalWidth = 190;
+      let finalHeight = finalWidth / (img.width / img.height);
+      if (finalHeight > 277) {
+        finalHeight = 277;
+        finalWidth = finalHeight * (img.width / img.height);
+      }
+      pdf.addImage(imgDataUrl, 'JPEG', (210 - finalWidth) / 2, 10, finalWidth, finalHeight);
+      const pdfBlob = pdf.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+
+      document.getElementById('doc-size-info').innerHTML =
+        `<span class="status-pass">✅ ${(pdfBlob.size / 1024).toFixed(2)} KB</span> PDF ready for upload!`;
+      document.getElementById('docDownloadLink').href = url;
+      document.getElementById('doc-result').style.display = 'block';
+
+      document.getElementById('loader').classList.remove('show');
+      document.getElementById('docBtn').disabled = false;
+    };
+    img.src = imgDataUrl;
+  }
+</script>
+</body>
+</html>
