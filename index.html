@@ -1,48 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anand e-Solutions - Utility Portal</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0056b3">
-    <style>
-        :root { --bg-color: #f8fbff; --card-bg: #f4f7f9; --text-dark: #333; --text-light: #777; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); margin: 0; padding: 40px 20px; color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
-        .header { text-align: center; margin-bottom: 40px; }
-        .header h1 { color: #0056b3; font-size: 32px; margin-bottom: 10px; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; flex: 1; }
-        .tool-card { background-color: var(--card-bg); border: 1px solid #e1e8ed; border-radius: 8px; padding: 25px 20px; text-decoration: none; color: inherit; transition: all 0.3s ease; display: flex; flex-direction: column; cursor: pointer; }
-        .tool-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); background-color: white; }
-        .icon-container { font-size: 40px; margin-bottom: 15px; }
-        .brand { text-align: center; margin-top: 50px; font-weight: bold; color: #555; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anand e-Solutions — Utility Portal</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16213a">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="header">
-        <h1>Anand e-Solutions</h1>
-        <p>Smart Digital Utility Toolkit</p>
-    </div>
-    <div class="dashboard-grid">
-        <a href="edistrict-resizer.html" class="tool-card">
-            <div class="icon-container">📸</div>
-            <h3>UP eDistrict Resizer</h3>
-            <p>Compress Photos (50KB) and Documents (100KB PDF) instantly.</p>
-        </a>
-        <a href="aadhaar-cutter.html" class="tool-card">
-            <div class="icon-container">🪪</div>
-            <h3>Aadhaar Cutter</h3>
-            <p>Crop e-Aadhaar PDF into A4 print-ready layout.</p>
-        </a>
-        <a href="form-filler.html" class="tool-card">
-            <div class="icon-container">📝</div>
-            <h3>Declaration Form Filler</h3>
-            <p>Fill, sign, and compress Ghoshna Patra forms.</p>
-        </a>
-    </div>
-    <div class="brand"><p>Powered by Anand e-Solutions</p></div>
-    <script>
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(console.error); }); }
-    </script>
+<div class="wrap">
+  <div class="masthead">
+    <span class="eyebrow">Digital Utility Toolkit</span>
+    <h1>Anand e-Solutions</h1>
+    <p>Fast, offline-friendly tools for CSC &amp; cyber cafe paperwork</p>
+  </div>
+
+  <div class="dashboard-grid">
+    <a href="edistrict-resizer.html" class="tool-card">
+      <span class="tag">50–100 KB</span>
+      <div class="icon-container">📸</div>
+      <h3>UP eDistrict Resizer</h3>
+      <p>Compress passport photos to under 50 KB and scanned documents to a 100 KB PDF, instantly.</p>
+    </a>
+    <a href="aadhaar-cutter.html" class="tool-card">
+      <span class="tag">A4 print</span>
+      <div class="icon-container">🪪</div>
+      <h3>Aadhaar Smart Cutter</h3>
+      <p>Unlock an e-Aadhaar PDF, crop front &amp; back, and lay both out on one print-ready A4 sheet.</p>
+    </a>
+    <a href="form-filler.html" class="tool-card">
+      <span class="tag">Sign &amp; fill</span>
+      <div class="icon-container">📝</div>
+      <h3>Declaration Form Filler</h3>
+      <p>Type directly onto a scanned Ghoshna Patra, drop in a signature, and export a clean JPG.</p>
+    </a>
+    <a href="print-optimizer.html" class="tool-card">
+      <span class="tag">Up to 10 cards</span>
+      <div class="icon-container">🖨️</div>
+      <h3>Multi-Card Print Layout</h3>
+      <p>Arrange Aadhaar, PAN, or Voter ID crops automatically onto a single A4 sheet for printing.</p>
+    </a>
+  </div>
+
+  <p class="footer-note">POWERED BY ANAND E-SOLUTIONS · WORKS OFFLINE ONCE INSTALLED</p>
+</div>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(console.error);
+    });
+  }
+</script>
 </body>
 </html>
