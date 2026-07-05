@@ -3,35 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anand Information - Utility Portal</title>
-    
+    <title>Anand e-Solutions - Utility Portal</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0056b3">
-    
     <style>
-        :root { --bg-color: #f8fbff; --card-bg: #f4f7f9; --text-dark: #333; --text-light: #777; --hover-shadow: rgba(0, 0, 0, 0.1); }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); margin: 0; padding: 40px 20px; color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
+        :root { --bg-color: #f8fbff; --card-bg: #f4f7f9; --text-dark: #333; --text-light: #777; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); margin: 0; padding: 40px 20px; color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
         .header { text-align: center; margin-bottom: 40px; }
-        .header h1 { color: #0056b3; font-size: 28px; margin-bottom: 10px; }
+        .header h1 { color: #0056b3; font-size: 32px; margin-bottom: 10px; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; flex: 1; }
         .tool-card { background-color: var(--card-bg); border: 1px solid #e1e8ed; border-radius: 8px; padding: 25px 20px; text-decoration: none; color: inherit; transition: all 0.3s ease; display: flex; flex-direction: column; cursor: pointer; }
-        .tool-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px var(--hover-shadow); border-color: #d0d9e0; background-color: white; }
+        .tool-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); background-color: white; }
         .icon-container { font-size: 40px; margin-bottom: 15px; }
-        .tool-card h3 { margin: 0 0 10px 0; font-size: 18px; color: #2c3e50; }
-        .tool-card p { margin: 0; font-size: 13px; color: var(--text-light); line-height: 1.4; }
-        
-        .brand-footer { margin-top: 50px; padding: 20px; background: white; border-top: 3px solid #ff7619; text-align: center; border-radius: 8px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .brand-name { font-size: 20px; font-weight: bold; color: #0056b3; margin: 0; }
-        .brand-contact { margin-top: 8px; display: inline-block; padding: 10px 20px; background: #25D366; color: white; text-decoration: none; font-weight: bold; border-radius: 20px; transition: 0.3s; }
-        .brand-contact:hover { background: #1ebe57; }
+        .brand { text-align: center; margin-top: 50px; font-weight: bold; color: #555; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Smart Digital Utility Portal</h1>
-        <p>Complete toolkit for CSC and Cyber Cafe Operators</p>
+        <h1>Anand e-Solutions</h1>
+        <p>Smart Digital Utility Toolkit</p>
     </div>
-    
     <div class="dashboard-grid">
         <a href="edistrict-resizer.html" class="tool-card">
             <div class="icon-container">📸</div>
@@ -41,33 +32,17 @@
         <a href="aadhaar-cutter.html" class="tool-card">
             <div class="icon-container">🪪</div>
             <h3>Aadhaar Cutter</h3>
-            <p>Upload password-protected e-Aadhaar PDF, crop and generate A4 print-ready PDF.</p>
+            <p>Crop e-Aadhaar PDF into A4 print-ready layout.</p>
         </a>
         <a href="form-filler.html" class="tool-card">
             <div class="icon-container">📝</div>
             <h3>Declaration Form Filler</h3>
-            <p>Digitally fill Ghoshna Patra, add signature, and compress under 100KB.</p>
-        </a>
-        <a href="print-optimizer.html" class="tool-card" style="border: 2px solid #ff7619;">
-            <div class="icon-container">🖨️</div>
-            <h3>Print Layout Optimizer</h3>
-            <p>Upload up to 10 ID cards and automatically arrange them on a single A4 sheet to save paper.</p>
+            <p>Fill, sign, and compress Ghoshna Patra forms.</p>
         </a>
     </div>
-
-    <div class="brand-footer">
-        <p class="brand-name">Powered by ANAND INFORMATION GAZIPUR</p>
-        <p style="margin: 5px 0 10px 0; color: #666; font-size: 14px;">Your trusted partner for online utility solutions.</p>
-        <a href="https://wa.me/919999999999?text=Hello" target="_blank" class="brand-contact">💬 Contact on WhatsApp</a>
-    </div>
-
+    <div class="brand"><p>Powered by Anand e-Solutions</p></div>
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .catch(err => console.error('Service Worker Error:', err));
-            });
-        }
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(console.error); }); }
     </script>
 </body>
 </html>
